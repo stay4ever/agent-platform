@@ -65,6 +65,7 @@ defmodule AgentPlatformWeb do
     quote do
       import Phoenix.HTML
       import Phoenix.LiveView.Helpers
+      import AgentPlatformWeb.CoreComponents
 
       unquote(verified_routes())
     end
