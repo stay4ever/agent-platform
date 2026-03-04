@@ -1,4 +1,4 @@
-app = "agent-platform"
+app = "stay4ever-agent-platform"
 primary_region = "iad"
 kill_signal = "SIGTERM"
 kill_timeout = "5s"
@@ -9,7 +9,7 @@ kill_timeout = "5s"
   release_command = "/app/bin/migrate"
 
 [env]
-  PHX_HOST = "agent-platform.fly.dev"
+  PHX_HOST = "stay4ever-agent-platform.fly.dev"
   PORT = "4003"
   PHX_SERVER = "true"
   ECTO_IPV6 = "true"
