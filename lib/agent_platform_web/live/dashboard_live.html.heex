@@ -1,0 +1,675 @@
+<style>
+  :root {
+    --bg-primary: #0a0a0a;
+    --bg-secondary: #111111;
+    --bg-card: #161616;
+    --bg-card-hover: #1a1a1a;
+    --border: #262626;
+    --text-primary: #f5f5f5;
+    --text-secondary: #a3a3a3;
+    --text-muted: #737373;
+    --violet: #8b5cf6;
+    --violet-dim: #7c3aed;
+    --violet-glow: rgba(139, 92, 246, 0.15);
+    --cyan: #06b6d4;
+    --cyan-dim: #0891b2;
+    --cyan-glow: rgba(6, 182, 212, 0.15);
+    --green: #22c55e;
+    --yellow: #eab308;
+    --red: #ef4444;
+    --orange: #f97316;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    background: var(--bg-primary) !important;
+    color: var(--text-primary);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    margin: 0;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .dashboard {
+    max-width: 1440px;
+    margin: 0 auto;
+    padding: 24px;
+  }
+
+  .dash-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 32px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .dash-header h1 {
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .dash-header h1 .logo-icon {
+    width: 36px;
+    height: 36px;
+    background: linear-gradient(135deg, var(--violet), var(--cyan));
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    font-weight: 800;
+    color: white;
+  }
+
+  .health-badge {
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .health-badge.healthy { background: rgba(34, 197, 94, 0.15); color: var(--green); }
+  .health-badge.warning { background: rgba(234, 179, 8, 0.15); color: var(--yellow); }
+  .health-badge.stressed { background: rgba(249, 115, 22, 0.15); color: var(--orange); }
+  .health-badge.idle { background: rgba(163, 163, 163, 0.15); color: var(--text-muted); }
+
+  /* --- Metrics Grid --- */
+  .metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+
+  .metric-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    transition: border-color 0.2s, transform 0.15s;
+  }
+
+  .metric-card:hover {
+    border-color: var(--violet);
+    transform: translateY(-1px);
+  }
+
+  .metric-card .label {
+    font-size: 12px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+  }
+
+  .metric-card .value {
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--text-primary);
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .metric-card .value.violet { color: var(--violet); }
+  .metric-card .value.cyan { color: var(--cyan); }
+  .metric-card .value.green { color: var(--green); }
+
+  .metric-card .sub {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 6px;
+  }
+
+  /* --- Main Layout --- */
+  .main-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-bottom: 28px;
+  }
+
+  @media (max-width: 1024px) {
+    .main-grid { grid-template-columns: 1fr; }
+  }
+
+  .panel {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .panel-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .panel-header h2 {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0;
+  }
+
+  .panel-header .count {
+    font-size: 12px;
+    color: var(--text-muted);
+    background: var(--bg-secondary);
+    padding: 2px 10px;
+    border-radius: 10px;
+  }
+
+  .panel-body {
+    padding: 0;
+    max-height: 420px;
+    overflow-y: auto;
+  }
+
+  .panel-body::-webkit-scrollbar { width: 6px; }
+  .panel-body::-webkit-scrollbar-track { background: transparent; }
+  .panel-body::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  /* --- Client Health Cards --- */
+  .client-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 12px;
+    padding: 16px;
+  }
+
+  .client-card {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    transition: border-color 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .client-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 3px;
+    height: 100%;
+  }
+
+  .client-card.health-healthy::before { background: var(--green); }
+  .client-card.health-warning::before { background: var(--yellow); }
+  .client-card.health-critical::before { background: var(--red); }
+  .client-card.health-inactive::before { background: var(--text-muted); }
+
+  .client-card .client-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+  }
+
+  .client-card .client-meta {
+    font-size: 11px;
+    color: var(--text-muted);
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .client-card .client-stats {
+    display: flex;
+    gap: 16px;
+    margin-top: 10px;
+    font-size: 12px;
+  }
+
+  .client-card .client-stats .stat-val {
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  .client-card .client-stats .stat-label {
+    color: var(--text-muted);
+  }
+
+  /* --- Conversations Feed --- */
+  .conv-item {
+    padding: 12px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    transition: background 0.15s;
+  }
+
+  .conv-item:hover {
+    background: var(--bg-card-hover);
+  }
+
+  .conv-item:last-child {
+    border-bottom: none;
+  }
+
+  .conv-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-top: 6px;
+    flex-shrink: 0;
+  }
+
+  .conv-dot.active { background: var(--cyan); box-shadow: 0 0 8px var(--cyan-glow); }
+  .conv-dot.resolved { background: var(--green); }
+  .conv-dot.escalated { background: var(--orange); }
+  .conv-dot.abandoned { background: var(--text-muted); }
+
+  .conv-content { flex: 1; min-width: 0; }
+
+  .conv-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 4px;
+  }
+
+  .conv-agent {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  .conv-time {
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+
+  .conv-preview {
+    font-size: 12px;
+    color: var(--text-secondary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .conv-badges {
+    display: flex;
+    gap: 6px;
+    margin-top: 4px;
+  }
+
+  .conv-badge {
+    font-size: 10px;
+    padding: 1px 7px;
+    border-radius: 8px;
+    font-weight: 500;
+  }
+
+  .conv-badge.widget { background: rgba(139, 92, 246, 0.15); color: var(--violet); }
+  .conv-badge.sms { background: rgba(6, 182, 212, 0.15); color: var(--cyan); }
+  .conv-badge.email { background: rgba(34, 197, 94, 0.15); color: var(--green); }
+  .conv-badge.whatsapp { background: rgba(34, 197, 94, 0.15); color: var(--green); }
+
+  /* --- Agent Rankings --- */
+  .agent-row {
+    padding: 12px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    transition: background 0.15s;
+  }
+
+  .agent-row:hover { background: var(--bg-card-hover); }
+  .agent-row:last-child { border-bottom: none; }
+
+  .agent-rank {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-muted);
+    width: 24px;
+    text-align: center;
+  }
+
+  .agent-rank.top { color: var(--violet); }
+
+  .agent-status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .agent-status-dot.active { background: var(--green); }
+  .agent-status-dot.paused { background: var(--yellow); }
+  .agent-status-dot.configuring { background: var(--cyan); }
+  .agent-status-dot.retired { background: var(--text-muted); }
+
+  .agent-info { flex: 1; }
+
+  .agent-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  .agent-type {
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+
+  .agent-metrics {
+    display: flex;
+    gap: 20px;
+    font-size: 12px;
+    text-align: right;
+  }
+
+  .agent-metrics .metric {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .agent-metrics .metric-val {
+    font-weight: 600;
+    color: var(--text-primary);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .agent-metrics .metric-lbl {
+    color: var(--text-muted);
+    font-size: 10px;
+  }
+
+  /* --- Status Matrix --- */
+  .status-matrix {
+    padding: 16px 20px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .status-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+    transition: transform 0.15s;
+  }
+
+  .status-dot:hover { transform: scale(1.5); }
+  .status-dot.active { background: var(--green); }
+  .status-dot.paused { background: var(--yellow); }
+  .status-dot.configuring { background: var(--cyan); }
+  .status-dot.retired { background: var(--text-muted); opacity: 0.5; }
+
+  /* --- Revenue Section --- */
+  .revenue-bar {
+    padding: 16px 20px;
+  }
+
+  .revenue-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .revenue-row:last-child { border-bottom: none; }
+
+  .revenue-label {
+    font-size: 13px;
+    color: var(--text-secondary);
+  }
+
+  .revenue-value {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--violet);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* --- Animated counter --- */
+  @keyframes countPulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+  }
+
+  .counter-animated {
+    animation: countPulse 2s ease-in-out infinite;
+  }
+
+  /* --- Responsive --- */
+  @media (max-width: 768px) {
+    .dashboard { padding: 16px; }
+    .metrics-grid { grid-template-columns: repeat(2, 1fr); }
+    .metric-card .value { font-size: 24px; }
+    .client-grid { grid-template-columns: 1fr; }
+    .dash-header h1 { font-size: 20px; }
+  }
+
+  @media (max-width: 480px) {
+    .metrics-grid { grid-template-columns: 1fr; }
+  }
+
+  .empty-state {
+    padding: 40px 20px;
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 13px;
+  }
+</style>
+
+<div class="dashboard">
+  <!-- Header -->
+  <div class="dash-header">
+    <h1>
+      <span class="logo-icon">AP</span>
+      AgentPlatform
+    </h1>
+    <div style="display: flex; align-items: center; gap: 16px;">
+      <span style="font-size: 12px; color: var(--text-muted);">Uptime: <%= @uptime %></span>
+      <span class={"health-badge #{@health_status}"}><%= @health_status %></span>
+    </div>
+  </div>
+
+  <!-- Metrics Row -->
+  <div class="metrics-grid">
+    <div class="metric-card">
+      <div class="label">Active Clients</div>
+      <div class="value violet"><%= @active_clients %></div>
+      <div class="sub"><%= @at_risk_count %> at risk</div>
+    </div>
+    <div class="metric-card">
+      <div class="label">Active Agents</div>
+      <div class="value"><%= @active_agents %></div>
+      <div class="sub">Across all clients</div>
+    </div>
+    <div class="metric-card">
+      <div class="label">Conversations Today</div>
+      <div class="value cyan counter-animated"><%= @conversations_today %></div>
+      <div class="sub"><%= @cpm %> / minute</div>
+    </div>
+    <div class="metric-card">
+      <div class="label">MRR</div>
+      <div class="value green"><%= @mrr_display %></div>
+      <div class="sub">Monthly recurring revenue</div>
+    </div>
+    <div class="metric-card">
+      <div class="label">Platform Satisfaction</div>
+      <div class="value"><%= @satisfaction %></div>
+      <div class="sub">Average across agents</div>
+    </div>
+    <div class="metric-card">
+      <div class="label">Capacity</div>
+      <div class="value"><%= @capacity_util %>%</div>
+      <div class="sub">Platform utilization</div>
+    </div>
+  </div>
+
+  <!-- Client Health Cards -->
+  <div class="panel" style="margin-bottom: 24px;">
+    <div class="panel-header">
+      <h2>Client Health</h2>
+      <span class="count"><%= length(@clients) %> clients</span>
+    </div>
+    <%= if length(@clients) > 0 do %>
+      <div class="client-grid">
+        <%= for client <- @clients do %>
+          <div class={"client-card health-#{client.health}"}>
+            <div class="client-name"><%= client.business_name %></div>
+            <div class="client-meta">
+              <span><%= client.industry %></span>
+              <span><%= client.plan %></span>
+              <span><%= client.monthly_price %>/mo</span>
+            </div>
+            <div class="client-stats">
+              <div>
+                <span class="stat-val"><%= client.agents_count %></span>
+                <span class="stat-label"> agents</span>
+              </div>
+              <div>
+                <span class="stat-val"><%= client.conversations_today %></span>
+                <span class="stat-label"> convos today</span>
+              </div>
+              <div>
+                <span class="stat-val"><%= client.satisfaction %></span>
+                <span class="stat-label"> sat.</span>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    <% else %>
+      <div class="empty-state">No clients yet. Onboard your first client to get started.</div>
+    <% end %>
+  </div>
+
+  <!-- Two Column Layout -->
+  <div class="main-grid">
+    <!-- Live Conversation Feed -->
+    <div class="panel">
+      <div class="panel-header">
+        <h2>Live Conversations</h2>
+        <span class="count"><%= length(@recent_conversations) %> recent</span>
+      </div>
+      <div class="panel-body">
+        <%= if length(@recent_conversations) > 0 do %>
+          <%= for conv <- @recent_conversations do %>
+            <div class="conv-item">
+              <div class={"conv-dot #{conv.status}"}></div>
+              <div class="conv-content">
+                <div class="conv-header">
+                  <span class="conv-agent"><%= conv.agent_name %></span>
+                  <span class="conv-time"><%= conv.time_ago %></span>
+                </div>
+                <div class="conv-preview"><%= conv.last_message %></div>
+                <div class="conv-badges">
+                  <span class={"conv-badge #{conv.channel}"}><%= conv.channel %></span>
+                  <span class="conv-badge" style="background: rgba(163,163,163,0.1); color: var(--text-muted);"><%= conv.message_count %> msgs</span>
+                </div>
+              </div>
+            </div>
+          <% end %>
+        <% else %>
+          <div class="empty-state">No conversations yet. Deploy agents to start handling visitors.</div>
+        <% end %>
+      </div>
+    </div>
+
+    <!-- Agent Performance Rankings -->
+    <div class="panel">
+      <div class="panel-header">
+        <h2>Agent Rankings</h2>
+        <span class="count">By conversations</span>
+      </div>
+      <div class="panel-body">
+        <%= if length(@agents_ranked) > 0 do %>
+          <%= for {agent, idx} <- Enum.with_index(@agents_ranked) do %>
+            <div class="agent-row">
+              <span class={"agent-rank #{if idx < 3, do: "top", else: ""}"}><%= idx + 1 %></span>
+              <div class={"agent-status-dot #{agent.status}"}></div>
+              <div class="agent-info">
+                <div class="agent-name"><%= agent.name %></div>
+                <div class="agent-type"><%= agent.type %></div>
+              </div>
+              <div class="agent-metrics">
+                <div class="metric">
+                  <span class="metric-val"><%= agent.total_conversations %></span>
+                  <span class="metric-lbl">total</span>
+                </div>
+                <div class="metric">
+                  <span class="metric-val"><%= agent.conversations_today %></span>
+                  <span class="metric-lbl">today</span>
+                </div>
+                <div class="metric">
+                  <span class="metric-val"><%= agent.satisfaction %></span>
+                  <span class="metric-lbl">sat.</span>
+                </div>
+              </div>
+            </div>
+          <% end %>
+        <% else %>
+          <div class="empty-state">No agents deployed yet.</div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom Row: Agent Status Matrix + Revenue -->
+  <div class="main-grid">
+    <!-- Agent Status Matrix -->
+    <div class="panel">
+      <div class="panel-header">
+        <h2>Agent Status Matrix</h2>
+        <span class="count"><%= length(@agents_ranked) %> agents</span>
+      </div>
+      <%= if length(@agents_ranked) > 0 do %>
+        <div class="status-matrix">
+          <%= for agent <- @agents_ranked do %>
+            <div class={"status-dot #{agent.status}"} title={"#{agent.name} (#{agent.status})"}></div>
+          <% end %>
+        </div>
+      <% else %>
+        <div class="empty-state">No agents to display.</div>
+      <% end %>
+    </div>
+
+    <!-- Revenue -->
+    <div class="panel">
+      <div class="panel-header">
+        <h2>Revenue</h2>
+      </div>
+      <div class="revenue-bar">
+        <div class="revenue-row">
+          <span class="revenue-label">MRR</span>
+          <span class="revenue-value"><%= @mrr_display %></span>
+        </div>
+        <div class="revenue-row">
+          <span class="revenue-label">This Month</span>
+          <span class="revenue-value"><%= @monthly_revenue %></span>
+        </div>
+        <div class="revenue-row">
+          <span class="revenue-label">All Time</span>
+          <span class="revenue-value"><%= @total_revenue %></span>
+        </div>
+        <div class="revenue-row">
+          <span class="revenue-label">At-Risk Revenue</span>
+          <span class="revenue-value" style="color: var(--yellow);"><%= @at_risk_count %> clients</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
